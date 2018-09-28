@@ -2070,7 +2070,7 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                 case Effect.Type.EndOfDialogue:
                   break;
-                
+
                 case Effect.Type.SetQuestState:
                   // Get the quest name.
                   var quest = Quest.Find(quests, effect.questAndState.questId);
