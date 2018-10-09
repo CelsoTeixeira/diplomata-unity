@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using LavaLeak.Diplomata.Helpers;
 using LavaLeak.Diplomata.Models;
 using LavaLeak.Diplomata.Persistence;
@@ -10,13 +11,13 @@ namespace LavaLeak.Diplomata
   /// <summary>
   /// The class to manage all Diplomata project data.
   /// </summary>
-  [AddComponentMenu("")]
   [ExecuteInEditMode]
   public static class DiplomataManager
   {
     private static DiplomataData data;
+    public static DiplomataEventController EventController = new DiplomataEventController();
     public static bool OnATalk;
-
+   
     /// <summary>
     /// The Diplomata main data, all data come from here.
     /// </summary>
@@ -99,7 +100,7 @@ namespace LavaLeak.Diplomata
     /// Get a character by his name.
     /// </summary>
     /// <param name="name">The character name.</param>
-    /// <returns>The <seealso cref="Diplomata.Models.Character"> object or null.</returns>
+    /// <returns>The <seealso cref="Diplomata.Models.Character" /> object or null.</returns>
     public static Character GetCharacter(string name)
     {
       return Character.Find(Data.characters, name);
@@ -109,7 +110,7 @@ namespace LavaLeak.Diplomata
     /// Get a interactable by it's name.
     /// </summary>
     /// <param name="name">The interactable name.</param>
-    /// <returns>The <seealso cref="Diplomata.Models.Interactable"> object or null.</returns>
+    /// <returns>The <seealso cref="Diplomata.Models.Interactable" /> object or null.</returns>
     public static Interactable GetInteractable(string name)
     {
       return Interactable.Find(Data.interactables, name);
@@ -120,7 +121,7 @@ namespace LavaLeak.Diplomata
     /// </summary>
     /// <param name="talkable">The talkable parent of the context.</param>
     /// <param name="contextIndex">The index of the context.</param>
-    /// <returns>The <seealso cref="Diplomata.Models.Context"> object or null.</returns>
+    /// <returns>The <seealso cref="Diplomata.Models.Context" /> object or null.</returns>
     public static Context GetContext(Talkable talkable, int contextIndex)
     {
       return Context.Find(talkable, contextIndex);
@@ -234,6 +235,16 @@ namespace LavaLeak.Diplomata
     }
 
     /// <summary>
+    /// Get all data from the items in the inventory based on a category
+    /// </summary>
+    /// <param name="category">Item category to search for</param>
+    /// <returns>A array of <seealso cref="Diplomata.Models.Item">.</returns>
+    public static List<Item> GetItems(string category)
+    {
+      return Data.inventory.items.ToList().FindAll(i => i.Category == category);
+    }
+    
+    /// <summary>
     /// Get a item by it's name.
     /// </summary>
     /// <param name="name">The item name.</param>
@@ -246,6 +257,19 @@ namespace LavaLeak.Diplomata
     }
 
     /// <summary>
+    /// Get a item by it's name and it's category. 
+    /// </summary>
+    /// <param name="name">The item name</param>
+    /// <param name="category">The item category</param>
+    /// <param name="language">The language of this name, if empty uses the options first language.</param>
+    /// <returns>The <seealso cref="Diplomata.Models.Item"> object or null.</returns>
+    public static Item GetItem(string name, string language = "", string category = "")
+    {
+      if (language == "") language = Data.options.languages[0].name;
+      return Data.inventory.items.ToList().Find(i => i.GetName(language) == name && i.Category == category);
+    }
+    
+    /// <summary>
     /// Get a item by it's id.
     /// </summary>
     /// <param name="itemId">The item id.</param>
@@ -255,6 +279,27 @@ namespace LavaLeak.Diplomata
       return Item.Find(Data.inventory.items, itemId);
     }
 
+    /// <summary>
+    /// Mark a item as have by it's name.
+    /// </summary>
+    /// <param name="name">The item name.</param>
+    /// <param name="language">The language of this name, if empty uses the options first language.</param>
+    /// <returns>The <seealso cref="Diplomata.Models.Item"> object or null.</returns>
+    public static Item GiveItem(string name, string language = "")
+    {
+      if (language == "") language = Data.options.languages[0].name;
+      var itemToGive = Item.Find(Data.inventory.items, name, language);
+
+      if (itemToGive == null)
+        return null;
+      
+      //Trigger a ItemWasCaught globally.
+      EventController.SendItemWasCaught(itemToGive);
+      
+      itemToGive.MarkItemAsHave();
+      return itemToGive;
+    }
+    
     /// <summary>
     /// Return all characters persistent data.
     /// </summary>

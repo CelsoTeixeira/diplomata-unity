@@ -1,7 +1,6 @@
+using System;
 using System.Collections.Generic;
-using LavaLeak.Diplomata;
 using LavaLeak.Diplomata.Dictionaries;
-using LavaLeak.Diplomata.Editor;
 using LavaLeak.Diplomata.Editor.Controllers;
 using LavaLeak.Diplomata.Editor.Extensions;
 using LavaLeak.Diplomata.Editor.Helpers;
@@ -50,7 +49,7 @@ namespace LavaLeak.Diplomata.Editor.Windows
     private static string[] itemList = new string[0];
     private static string[] globalFlagsList = new string[0];
     private static string[] labelsList = new string[0];
-    private static string[] booleanArray = new string[] { "True", "False" };
+    private static string[] booleanArray = new string[] {"True", "False"};
 
     // Messages layout fields.
     public static GUIStyle messagesWindowHeaderStyle = new GUIStyle(GUIHelper.windowStyle);
@@ -75,12 +74,14 @@ namespace LavaLeak.Diplomata.Editor.Windows
       Messages = 2,
       Close = 3
     }
+
     public static State state;
 
     public static void Init(State state = State.None)
     {
-      TalkableMessagesEditor window = (TalkableMessagesEditor) GetWindow(typeof(TalkableMessagesEditor), false, "Messages", true);
-      window.minSize = new Vector2(1100, 300);
+      TalkableMessagesEditor window =
+        (TalkableMessagesEditor) GetWindow(typeof(TalkableMessagesEditor), false, "Messages", true);
+      window.minSize = new Vector2(370, 300);
 
       TalkableMessagesEditor.state = state;
 
@@ -160,6 +161,7 @@ namespace LavaLeak.Diplomata.Editor.Windows
         context.talkableName = talkable.name;
         StaticSave(talkable);
       }
+
       Init(State.Messages);
     }
 
@@ -233,12 +235,14 @@ namespace LavaLeak.Diplomata.Editor.Windows
         Save();
         iteractions = 0;
       }
+
       iteractions++;
     }
 
     #endregion
 
     #region Context Editor
+
     public void DrawContextList()
     {
       var listWidth = Screen.width / 3;
@@ -278,7 +282,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
           if (name == null)
           {
-            context.name = ArrayHelper.Add(context.name, new LanguageDictionary(options.currentLanguage, "Name [Change clicking on Edit]"));
+            context.name = ArrayHelper.Add(context.name,
+              new LanguageDictionary(options.currentLanguage, "Name [Change clicking on Edit]"));
             name = DictionariesHelper.ContainsKey(context.name, options.currentLanguage);
           }
 
@@ -288,7 +293,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
           GUIHelper.textContent.text = "<size=13><i>" + name.value + "</i></size>\n";
           var height = GUIHelper.labelStyle.CalcHeight(GUIHelper.textContent, listWidth);
 
-          GUILayout.Label(GUIHelper.textContent, GUIHelper.labelStyle, GUILayout.Width(listWidth), GUILayout.Height(height));
+          GUILayout.Label(GUIHelper.textContent, GUIHelper.labelStyle, GUILayout.Width(listWidth),
+            GUILayout.Height(height));
 
           GUILayout.BeginHorizontal();
           if (GUILayout.Button("Edit", GUILayout.Height(GUIHelper.BUTTON_HEIGHT)))
@@ -303,7 +309,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
           if (GUILayout.Button("Delete", GUILayout.Height(GUIHelper.BUTTON_HEIGHT)))
           {
-            if (EditorUtility.DisplayDialog("Are you sure?", "All data inside this context will be lost forever.", "Yes", "No"))
+            if (EditorUtility.DisplayDialog("Are you sure?", "All data inside this context will be lost forever.",
+              "Yes", "No"))
             {
               ContextEditor.Reset(talkable.name);
               talkable.contexts = ArrayHelper.Remove(talkable.contexts, context);
@@ -344,24 +351,10 @@ namespace LavaLeak.Diplomata.Editor.Windows
           EditorGUILayout.Separator();
         }
 
-        GUILayout.BeginHorizontal();
         if (GUILayout.Button("Add Context", GUILayout.Height(GUIHelper.BUTTON_HEIGHT_BIG)))
         {
           CreateContext();
         }
-
-        if (GUILayout.Button("Save as Screenplay", GUILayout.Height(GUIHelper.BUTTON_HEIGHT_BIG)))
-        {
-          if (EditorUtility.DisplayDialog("This character only?", "This character only or all characters?", "Only this character", "All characters"))
-          {
-            Screenplay.Save(talkable);
-          }
-          else
-          {
-            Screenplay.SaveAll();
-          }
-        }
-        GUILayout.EndHorizontal();
 
         GUILayout.EndVertical();
         GUILayout.EndHorizontal();
@@ -381,6 +374,7 @@ namespace LavaLeak.Diplomata.Editor.Windows
       talkable.contexts = ArrayHelper.Add(talkable.contexts, new Context(talkable.contexts.Length, talkable.name));
       Save();
     }
+
     #endregion
 
     public void DrawMessagesEditor()
@@ -488,7 +482,6 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
         for (int j = 0; j < column.messages.Length; j++)
         {
-
           Message currentMessage = column.messages[j];
 
           if (currentMessage.labelId == "")
@@ -519,7 +512,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
             if (context.currentMessage.columnId != -1 && context.currentMessage.rowId != -1)
             {
-              if (context.currentMessage.columnId == currentMessage.columnId && context.currentMessage.rowId == currentMessage.id)
+              if (context.currentMessage.columnId == currentMessage.columnId &&
+                  context.currentMessage.rowId == currentMessage.id)
               {
                 color = ColorHelper.ColorAdd(color, 0.1f);
                 message = currentMessage;
@@ -548,11 +542,15 @@ namespace LavaLeak.Diplomata.Editor.Windows
             {
               text = "<b><i>Id:</i></b>\n\n";
               text += currentMessage.GetUniqueId();
-              GUIHelper.labelStyle.normal.textColor = ColorHelper.ColorSub(GUIHelper.labelStyle.normal.textColor, 0, 0.4f);
+              GUIHelper.labelStyle.normal.textColor =
+                ColorHelper.ColorSub(GUIHelper.labelStyle.normal.textColor, 0, 0.4f);
               GUIHelper.textContent.text = text;
               height = GUIHelper.labelStyle.CalcHeight(GUIHelper.textContent, context.columnWidth);
-              GUILayout.Label(GUIHelper.textContent, GUIHelper.labelStyle, GUILayout.Width(context.columnWidth), GUILayout.Height(height));
-              GUIHelper.labelStyle.normal.textColor = ColorHelper.ColorAdd(GUIHelper.labelStyle.normal.textColor, 0, 0.4f);
+              EditorGUILayout.LabelField(GUIHelper.textContent, GUIHelper.labelStyle,
+                GUILayout.Width(context.columnWidth),
+                GUILayout.Height(height));
+              GUIHelper.labelStyle.normal.textColor =
+                ColorHelper.ColorAdd(GUIHelper.labelStyle.normal.textColor, 0, 0.4f);
             }
 
             if (context.conditionsFilter)
@@ -573,9 +571,11 @@ namespace LavaLeak.Diplomata.Editor.Windows
                     case Condition.Type.AfterOf:
                       if (condition.afterOf.GetMessage(context) != null)
                       {
-                        text += condition.DisplayAfterOf(DictionariesHelper.ContainsKey(condition.afterOf.GetMessage(context).content,
+                        text += condition.DisplayAfterOf(DictionariesHelper.ContainsKey(
+                          condition.afterOf.GetMessage(context).content,
                           options.currentLanguage).value);
                       }
+
                       break;
                     case Condition.Type.InfluenceEqualTo:
                     case Condition.Type.InfluenceGreaterThan:
@@ -588,6 +588,7 @@ namespace LavaLeak.Diplomata.Editor.Windows
                       {
                         text += "Invalid condition.";
                       }
+
                       break;
                     case Condition.Type.HasItem:
                       var itemName = "";
@@ -596,6 +597,7 @@ namespace LavaLeak.Diplomata.Editor.Windows
                         itemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, condition.itemId).name,
                           options.currentLanguage).value;
                       }
+
                       text += condition.DisplayHasItem(itemName);
                       break;
                     case Condition.Type.DoesNotHaveTheItem:
@@ -605,24 +607,29 @@ namespace LavaLeak.Diplomata.Editor.Windows
                         itemNameDont = DictionariesHelper.ContainsKey(Item.Find(inventory.items, condition.itemId).name,
                           options.currentLanguage).value;
                       }
+
                       text += condition.DisplayDoesNotHaveItem(itemNameDont);
                       break;
                     case Condition.Type.ItemWasDiscarded:
                       var itemNameDiscarded = "";
                       if (Item.Find(inventory.items, condition.itemId) != null)
                       {
-                        itemNameDiscarded = DictionariesHelper.ContainsKey(Item.Find(inventory.items, condition.itemId).name,
+                        itemNameDiscarded = DictionariesHelper.ContainsKey(
+                          Item.Find(inventory.items, condition.itemId).name,
                           options.currentLanguage).value;
                       }
+
                       text += condition.DisplayItemWasDiscarded(itemNameDiscarded);
                       break;
                     case Condition.Type.ItemIsEquipped:
                       var itemNameEquipped = "";
                       if (Item.Find(inventory.items, condition.itemId) != null)
                       {
-                        itemNameEquipped = DictionariesHelper.ContainsKey(Item.Find(inventory.items, condition.itemId).name,
+                        itemNameEquipped = DictionariesHelper.ContainsKey(
+                          Item.Find(inventory.items, condition.itemId).name,
                           options.currentLanguage).value;
                       }
+
                       text += condition.DisplayItemIsEquipped(itemNameEquipped);
                       break;
                     case Condition.Type.GlobalFlagEqualTo:
@@ -639,11 +646,14 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   }
                 }
 
-                GUIHelper.labelStyle.normal.textColor = ColorHelper.ColorSub(GUIHelper.labelStyle.normal.textColor, 0, 0.4f);
+                GUIHelper.labelStyle.normal.textColor =
+                  ColorHelper.ColorSub(GUIHelper.labelStyle.normal.textColor, 0, 0.4f);
                 GUIHelper.textContent.text = text;
                 height = GUIHelper.labelStyle.CalcHeight(GUIHelper.textContent, context.columnWidth);
-                GUILayout.Label(GUIHelper.textContent, GUIHelper.labelStyle, GUILayout.Width(context.columnWidth), GUILayout.Height(height));
-                GUIHelper.labelStyle.normal.textColor = ColorHelper.ColorAdd(GUIHelper.labelStyle.normal.textColor, 0, 0.4f);
+                GUILayout.Label(GUIHelper.textContent, GUIHelper.labelStyle, GUILayout.Width(context.columnWidth),
+                  GUILayout.Height(height));
+                GUIHelper.labelStyle.normal.textColor =
+                  ColorHelper.ColorAdd(GUIHelper.labelStyle.normal.textColor, 0, 0.4f);
               }
             }
 
@@ -653,13 +663,15 @@ namespace LavaLeak.Diplomata.Editor.Windows
             {
               GUIHelper.textContent.text = "<b><i>Content:</i></b>";
               height = GUIHelper.labelStyle.CalcHeight(GUIHelper.textContent, context.columnWidth);
-              GUILayout.Label(GUIHelper.textContent, GUIHelper.labelStyle, GUILayout.Width(context.columnWidth), GUILayout.Height(height));
+              GUILayout.Label(GUIHelper.textContent, GUIHelper.labelStyle, GUILayout.Width(context.columnWidth),
+                GUILayout.Height(height));
 
               var content = DictionariesHelper.ContainsKey(currentMessage.content, options.currentLanguage);
 
               if (content == null)
               {
-                currentMessage.content = ArrayHelper.Add(currentMessage.content, new LanguageDictionary(options.currentLanguage, "[ Message content here ]"));
+                currentMessage.content = ArrayHelper.Add(currentMessage.content,
+                  new LanguageDictionary(options.currentLanguage, "[ Message content here ]"));
                 content = DictionariesHelper.ContainsKey(currentMessage.content, options.currentLanguage);
               }
 
@@ -667,8 +679,62 @@ namespace LavaLeak.Diplomata.Editor.Windows
               height = textAreaStyle.CalcHeight(GUIHelper.textContent, context.columnWidth);
 
               GUI.SetNextControlName("content" + currentMessage.id);
-              content.value = EditorGUILayout.TextArea(content.value, textAreaStyle, GUILayout.Width(context.columnWidth), GUILayout.Height(height));
+              content.value = EditorGUILayout.TextArea(content.value, textAreaStyle,
+                GUILayout.Width(context.columnWidth), GUILayout.Height(height));
               EditorGUILayout.Separator();
+
+              #region Attached Content
+
+              if (!currentMessage.isAChoice)
+              {
+                if (currentMessage.attachedContent == null)
+                  currentMessage.attachedContent = new AttachedContent[0];
+
+                foreach (var attachedContent in currentMessage.attachedContent)
+                {
+                  var currentAttachedContent =
+                    DictionariesHelper.ContainsKey(attachedContent.content, options.currentLanguage);
+
+                  if (currentAttachedContent == null)
+                  {
+                    attachedContent.content = ArrayHelper.Add(attachedContent.content,
+                      new LanguageDictionary(options.currentLanguage, "[ Message content here ]"));
+                    currentAttachedContent =
+                      DictionariesHelper.ContainsKey(attachedContent.content, options.currentLanguage);
+                  }
+
+                  GUIHelper.textContent.text = currentAttachedContent.value;
+                  height = textAreaStyle.CalcHeight(GUIHelper.textContent, context.columnWidth);
+
+                  EditorGUILayout.BeginHorizontal(GUILayout.Height(height));
+                  currentAttachedContent.value = EditorGUILayout.TextArea(currentAttachedContent.value, textAreaStyle,
+                    GUILayout.Width(context.columnWidth - 30), GUILayout.Height(height));
+
+                  if (GUILayout.Button("X", GUILayout.Width(20), GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
+                  {
+                    if (EditorUtility.DisplayDialog("Are you sure?",
+                      "Do you really want to delete?\nThis content will be lost forever.", "Yes", "No"))
+                    {
+                      currentMessage.attachedContent =
+                        ArrayHelper.Remove(currentMessage.attachedContent, attachedContent);
+                    }
+                  }
+
+                  EditorGUILayout.EndHorizontal();
+
+                  EditorGUILayout.Separator();
+                }
+
+                // Attach content button.
+                if (GUILayout.Button("Attach content", GUILayout.Width(context.columnWidth),
+                  GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
+                {
+                  currentMessage.attachedContent =
+                    ArrayHelper.Add(currentMessage.attachedContent, new AttachedContent());
+                }
+              }
+
+              #endregion
             }
 
             if (context.effectsFilter)
@@ -690,7 +756,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
                     case Effect.Type.EndOfContext:
                       if (effect.endOfContext.talkableName != null && effect.endOfContext.talkableName != string.Empty)
                       {
-                        var tempContext = effect.endOfContext.GetContext(characters, TalkableMessagesEditor.interactables);
+                        var tempContext =
+                          effect.endOfContext.GetContext(characters, TalkableMessagesEditor.interactables);
                         if (tempContext == null) break;
                         var tempName = DictionariesHelper.ContainsKey(tempContext.name, options.currentLanguage);
                         if (tempName == null) break;
@@ -703,13 +770,16 @@ namespace LavaLeak.Diplomata.Editor.Windows
                         effect.endOfContext.talkableName = tempColumn.emitter;
                         Save();
                       }
+
                       break;
 
                     case Effect.Type.GoTo:
                       if (effect.goTo.GetMessage(context) != null)
                       {
-                        text += effect.DisplayGoTo(DictionariesHelper.ContainsKey(effect.goTo.GetMessage(context).content, options.currentLanguage).value);
+                        text += effect.DisplayGoTo(DictionariesHelper
+                          .ContainsKey(effect.goTo.GetMessage(context).content, options.currentLanguage).value);
                       }
+
                       break;
                     case Effect.Type.SetAnimatorAttribute:
                       text += effect.DisplaySetAnimatorAttribute();
@@ -721,6 +791,7 @@ namespace LavaLeak.Diplomata.Editor.Windows
                         itemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, effect.itemId).name,
                           options.currentLanguage).value;
                       }
+
                       text += effect.DisplayGetItem(itemName);
                       break;
                     case Effect.Type.DiscardItem:
@@ -730,6 +801,7 @@ namespace LavaLeak.Diplomata.Editor.Windows
                         discardItemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, effect.itemId).name,
                           options.currentLanguage).value;
                       }
+
                       text += effect.DisplayDiscardItem(discardItemName);
                       break;
                     case Effect.Type.EquipItem:
@@ -739,6 +811,7 @@ namespace LavaLeak.Diplomata.Editor.Windows
                         equipItemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, effect.itemId).name,
                           options.currentLanguage).value;
                       }
+
                       text += effect.DisplayEquipItem(equipItemName);
                       break;
                     case Effect.Type.SetGlobalFlag:
@@ -764,11 +837,14 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   }
                 }
 
-                GUIHelper.labelStyle.normal.textColor = ColorHelper.ColorSub(GUIHelper.labelStyle.normal.textColor, 0, 0.4f);
+                GUIHelper.labelStyle.normal.textColor =
+                  ColorHelper.ColorSub(GUIHelper.labelStyle.normal.textColor, 0, 0.4f);
                 GUIHelper.textContent.text = text;
                 height = GUIHelper.labelStyle.CalcHeight(GUIHelper.textContent, context.columnWidth);
-                GUILayout.Label(GUIHelper.textContent, GUIHelper.labelStyle, GUILayout.Width(context.columnWidth), GUILayout.Height(height));
-                GUIHelper.labelStyle.normal.textColor = ColorHelper.ColorAdd(GUIHelper.labelStyle.normal.textColor, 0, 0.4f);
+                GUILayout.Label(GUIHelper.textContent, GUIHelper.labelStyle, GUILayout.Width(context.columnWidth),
+                  GUILayout.Height(height));
+                GUIHelper.labelStyle.normal.textColor =
+                  ColorHelper.ColorAdd(GUIHelper.labelStyle.normal.textColor, 0, 0.4f);
               }
             }
 
@@ -776,7 +852,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
             {
               GUIHelper.labelStyle.fontSize = context.fontSize;
               GUIHelper.labelStyle.alignment = TextAnchor.UpperRight;
-              GUIHelper.labelStyle.normal.textColor = ColorHelper.ColorSub(GUIHelper.labelStyle.normal.textColor, 0, 0.5f);
+              GUIHelper.labelStyle.normal.textColor =
+                ColorHelper.ColorSub(GUIHelper.labelStyle.normal.textColor, 0, 0.5f);
 
               text = string.Empty;
 
@@ -789,7 +866,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
               {
                 text += "[ is a choice ]";
 
-                if (GUILayout.Button("Add answer?", GUILayout.Width(context.columnWidth), GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
+                if (GUILayout.Button("Add answer?", GUILayout.Width(context.columnWidth),
+                  GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
                 {
                   // Get next column.
                   var nextColumn = Column.Find(context, currentMessage.columnId + 1);
@@ -802,7 +880,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   }
 
                   // Create a new message.
-                  var newMessage = new Message(nextColumn.messages.Length, options.playerCharacterName, nextColumn.id, currentMessage.labelId);
+                  var newMessage = new Message(nextColumn.messages.Length, options.playerCharacterName, nextColumn.id,
+                    currentMessage.labelId);
 
                   // Create a new condition with a after of.
                   var newCondition = new Condition();
@@ -821,7 +900,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
               GUIHelper.textContent.text = text;
               height = GUIHelper.labelStyle.CalcHeight(GUIHelper.textContent, context.columnWidth);
-              GUILayout.Label(GUIHelper.textContent, GUIHelper.labelStyle, GUILayout.Width(context.columnWidth), GUILayout.Height(height));
+              GUILayout.Label(GUIHelper.textContent, GUIHelper.labelStyle, GUILayout.Width(context.columnWidth),
+                GUILayout.Height(height));
 
               GUIHelper.labelStyle.fontSize = context.fontSize;
               GUIHelper.labelStyle.alignment = TextAnchor.UpperLeft;
@@ -840,7 +920,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
         if (GUILayout.Button("Add Message", GUILayout.Height(GUIHelper.BUTTON_HEIGHT)))
         {
-          column.messages = ArrayHelper.Add(column.messages, new Message(column.messages.Length, column.emitter, column.id, context.labels[0].uniqueId));
+          column.messages = ArrayHelper.Add(column.messages,
+            new Message(column.messages.Length, column.emitter, column.id, context.labels[0].uniqueId));
           SetMessage(null);
           Save();
         }
@@ -851,7 +932,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
         GUILayout.Space(GUIHelper.MARGIN);
       }
 
-      if (GUILayout.Button("Add Column", GUILayout.Height(GUIHelper.BUTTON_HEIGHT), GUILayout.Width(context.columnWidth)))
+      if (GUILayout.Button("Add Column", GUILayout.Height(GUIHelper.BUTTON_HEIGHT),
+        GUILayout.Width(context.columnWidth)))
       {
         context.columns = ArrayHelper.Add(context.columns, new Column(context.columns.Length));
         Save();
@@ -883,6 +965,7 @@ namespace LavaLeak.Diplomata.Editor.Windows
         {
           label.show = (label.show) ? false : true;
         }
+
         if (i > 0)
         {
           if (GUILayout.Button("X", GUILayout.Width(20), GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
@@ -898,8 +981,10 @@ namespace LavaLeak.Diplomata.Editor.Windows
                 }
               }
             }
+
             Save();
           }
+
           GUILayout.Space(20);
         }
         else
@@ -946,7 +1031,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
     private void Sidebar()
     {
-      scrollPosSidebar = EditorGUILayout.BeginScrollView(scrollPosSidebar, messagesWindowSidebarStyle, GUILayout.Width(SIDEBAR_WIDTH), GUILayout.ExpandHeight(true));
+      scrollPosSidebar = EditorGUILayout.BeginScrollView(scrollPosSidebar, messagesWindowSidebarStyle,
+        GUILayout.Width(SIDEBAR_WIDTH), GUILayout.ExpandHeight(true));
 
       if (EditorGUIUtility.isProSkin)
       {
@@ -970,6 +1056,12 @@ namespace LavaLeak.Diplomata.Editor.Windows
             EditorGUILayout.Separator();
 
             var column = Column.Find(context, message.columnId);
+
+            if (column == null)
+            {
+              message = null;
+              return;
+            }
 
             var disposable = message.disposable;
             var isAChoice = message.isAChoice;
@@ -1006,7 +1098,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
               for (int i = 0; i < message.attributes.Length; i++)
               {
-                message.attributes[i].value = (byte) EditorGUILayout.Slider(message.attributes[i].key, message.attributes[i].value, 0, 100);
+                message.attributes[i].value =
+                  (byte) EditorGUILayout.Slider(message.attributes[i].key, message.attributes[i].value, 0, 100);
               }
             }
 
@@ -1048,12 +1141,14 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
             if (screenplayNotes == null)
             {
-              message.screenplayNotes = ArrayHelper.Add(message.screenplayNotes, new LanguageDictionary(options.currentLanguage, ""));
+              message.screenplayNotes = ArrayHelper.Add(message.screenplayNotes,
+                new LanguageDictionary(options.currentLanguage, ""));
               screenplayNotes = DictionariesHelper.ContainsKey(message.screenplayNotes, options.currentLanguage);
             }
 
             GUIHelper.labelStyle.alignment = TextAnchor.UpperLeft;
-            GUILayout.Label("Screenplay notes:\n<size=10>(Example: <i>whispering and gasping</i>)</size>", GUIHelper.labelStyle);
+            GUILayout.Label("Screenplay notes:\n<size=10>(Example: <i>whispering and gasping</i>)</size>",
+              GUIHelper.labelStyle);
             screenplayNotes.value = EditorGUILayout.TextField(screenplayNotes.value);
 
             GUIHelper.Separator();
@@ -1064,7 +1159,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
             if (audioClipPath == null)
             {
-              message.audioClipPath = ArrayHelper.Add(message.audioClipPath, new LanguageDictionary(options.currentLanguage, string.Empty));
+              message.audioClipPath = ArrayHelper.Add(message.audioClipPath,
+                new LanguageDictionary(options.currentLanguage, string.Empty));
               audioClipPath = DictionariesHelper.ContainsKey(message.audioClipPath, options.currentLanguage);
             }
 
@@ -1139,7 +1235,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
             EditorGUILayout.Separator();
 
-            EditorGUILayout.HelpBox("\nMake sure to store this audio clip, texture and animator controllers in Resources folder.\n\n" +
+            EditorGUILayout.HelpBox(
+              "\nMake sure to store this audio clip, texture and animator controllers in Resources folder.\n\n" +
               "Use PlayMessageAudioContent() to play audio clip and StopMessageAudioContent() to stop.\n\n" +
               "Use SwapStaticSprite(Vector pivot) to show static image.\n", MessageType.Info);
 
@@ -1149,20 +1246,22 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
             foreach (AnimatorAttributeSetter animatorAttribute in message.animatorAttributesSetters)
             {
-
               EditorGUILayout.Separator();
 
               animatorAttribute.animator = (RuntimeAnimatorController) Resources.Load(animatorAttribute.animatorPath);
 
               if (animatorAttribute.animator == null && animatorAttribute.animatorPath != string.Empty)
               {
-                Debug.LogWarning("Cannot find the file \"" + animatorAttribute.animatorPath + "\" in Resources folder.");
+                Debug.LogWarning("Cannot find the file \"" + animatorAttribute.animatorPath +
+                                 "\" in Resources folder.");
               }
 
               GUILayout.Label("Animator Controller: ");
               EditorGUI.BeginChangeCheck();
 
-              animatorAttribute.animator = (RuntimeAnimatorController) EditorGUILayout.ObjectField(animatorAttribute.animator, typeof(RuntimeAnimatorController), false);
+              animatorAttribute.animator =
+                (RuntimeAnimatorController) EditorGUILayout.ObjectField(animatorAttribute.animator,
+                  typeof(RuntimeAnimatorController), false);
 
               if (EditorGUI.EndChangeCheck())
               {
@@ -1183,7 +1282,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
               GUILayout.BeginHorizontal();
 
               GUILayout.Label("Type: ");
-              animatorAttribute.type = (AnimatorControllerParameterType) EditorGUILayout.EnumPopup(animatorAttribute.type);
+              animatorAttribute.type =
+                (AnimatorControllerParameterType) EditorGUILayout.EnumPopup(animatorAttribute.type);
 
               EditorGUI.BeginChangeCheck();
 
@@ -1210,7 +1310,6 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                   if (EditorGUI.EndChangeCheck())
                   {
-
                     if (selected == "True")
                     {
                       animatorAttribute.setBool = true;
@@ -1220,7 +1319,6 @@ namespace LavaLeak.Diplomata.Editor.Windows
                     {
                       animatorAttribute.setBool = false;
                     }
-
                   }
 
                   break;
@@ -1245,7 +1343,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
               if (GUILayout.Button("Delete Animator Attribute Setter", GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
               {
-                message.animatorAttributesSetters = ArrayHelper.Remove(message.animatorAttributesSetters, animatorAttribute);
+                message.animatorAttributesSetters =
+                  ArrayHelper.Remove(message.animatorAttributesSetters, animatorAttribute);
                 Save();
               }
 
@@ -1254,7 +1353,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
             if (GUILayout.Button("Add Animator Attribute Setter", GUILayout.Height(GUIHelper.BUTTON_HEIGHT)))
             {
-              message.animatorAttributesSetters = ArrayHelper.Add(message.animatorAttributesSetters, new AnimatorAttributeSetter());
+              message.animatorAttributesSetters =
+                ArrayHelper.Add(message.animatorAttributesSetters, new AnimatorAttributeSetter());
               Save();
             }
 
@@ -1310,7 +1410,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
               else
               {
-                GUILayout.Box("<color=" + color + ">Left</color>", fakeButtonStyle, GUILayout.Height(GUIHelper.BUTTON_HEIGHT));
+                GUILayout.Box("<color=" + color + ">Left</color>", fakeButtonStyle,
+                  GUILayout.Height(GUIHelper.BUTTON_HEIGHT));
               }
 
               if (message.id > 0)
@@ -1328,7 +1429,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
               else
               {
-                GUILayout.Box("<color=" + color + ">Up</color>", fakeButtonStyle, GUILayout.Height(GUIHelper.BUTTON_HEIGHT));
+                GUILayout.Box("<color=" + color + ">Up</color>", fakeButtonStyle,
+                  GUILayout.Height(GUIHelper.BUTTON_HEIGHT));
               }
 
               if (message.id < column.messages.Length - 1)
@@ -1346,7 +1448,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
               else
               {
-                GUILayout.Box("<color=" + color + ">Down</color>", fakeButtonStyle, GUILayout.Height(GUIHelper.BUTTON_HEIGHT));
+                GUILayout.Box("<color=" + color + ">Down</color>", fakeButtonStyle,
+                  GUILayout.Height(GUIHelper.BUTTON_HEIGHT));
               }
 
               if (column.id < context.columns.Length - 1)
@@ -1372,7 +1475,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
               else
               {
-                GUILayout.Box("<color=" + color + ">Right</color>", fakeButtonStyle, GUILayout.Height(GUIHelper.BUTTON_HEIGHT));
+                GUILayout.Box("<color=" + color + ">Right</color>", fakeButtonStyle,
+                  GUILayout.Height(GUIHelper.BUTTON_HEIGHT));
               }
 
               GUILayout.EndHorizontal();
@@ -1385,7 +1489,6 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
             if (GUILayout.Button("Duplicate", GUILayout.Height(GUIHelper.BUTTON_HEIGHT)))
             {
-
               column.messages = ArrayHelper.Add(column.messages, new Message(message, column.messages.Length));
 
               SetMessage(null);
@@ -1395,9 +1498,9 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
             if (GUILayout.Button("Delete", GUILayout.Height(GUIHelper.BUTTON_HEIGHT)))
             {
-              if (EditorUtility.DisplayDialog("Are you sure?", "If you agree all this message data will be lost forever.", "Yes", "No"))
+              if (EditorUtility.DisplayDialog("Are you sure?",
+                "If you agree all this message data will be lost forever.", "Yes", "No"))
               {
-
                 column.messages = ArrayHelper.Remove(column.messages, message);
 
                 SetMessage(null);
@@ -1456,7 +1559,6 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
             foreach (Condition condition in message.conditions)
             {
-
               GUIHelper.labelStyle.fontSize = 11;
               GUIHelper.labelStyle.alignment = TextAnchor.UpperLeft;
               GUILayout.Label("<i>Condition " + j + "</i>\n", GUIHelper.labelStyle);
@@ -1476,7 +1578,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                   if (condition.afterOf.GetMessage(context) != null)
                   {
-                    messageName = DictionariesHelper.ContainsKey(condition.afterOf.GetMessage(context).content, options.currentLanguage).value;
+                    messageName = DictionariesHelper
+                      .ContainsKey(condition.afterOf.GetMessage(context).content, options.currentLanguage).value;
                   }
 
                   EditorGUI.BeginChangeCheck();
@@ -1489,13 +1592,11 @@ namespace LavaLeak.Diplomata.Editor.Windows
                     {
                       foreach (Message msg in col.messages)
                       {
-
                         if (DictionariesHelper.ContainsKey(msg.content, options.currentLanguage).value == messageName)
                         {
                           condition.afterOf.uniqueId = msg.GetUniqueId();
                           break;
                         }
-
                       }
                     }
                   }
@@ -1517,18 +1618,21 @@ namespace LavaLeak.Diplomata.Editor.Windows
                     }
 
                     condition.comparedInfluence = EditorGUILayout.IntField(condition.comparedInfluence);
-                    condition.characterInfluencedName = GUIHelper.Popup(" in ", condition.characterInfluencedName, characterList);
+                    condition.characterInfluencedName =
+                      GUIHelper.Popup(" in ", condition.characterInfluencedName, characterList);
 
                     if (EditorGUI.EndChangeCheck())
                     {
                       condition.DisplayCompareInfluence();
                     }
+
                     GUILayout.EndHorizontal();
                   }
                   else
                   {
                     EditorGUILayout.HelpBox("This condition is only valid to a character.", MessageType.Warning);
                   }
+
                   break;
 
                 case Condition.Type.HasItem:
@@ -1539,7 +1643,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                   if (itemList.Length > 0)
                   {
-                    itemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, condition.itemId).name, options.currentLanguage).value;
+                    itemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, condition.itemId).name,
+                      options.currentLanguage).value;
                   }
 
                   EditorGUI.BeginChangeCheck();
@@ -1550,13 +1655,11 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   {
                     foreach (Item item in inventory.items)
                     {
-
                       if (DictionariesHelper.ContainsKey(item.name, options.currentLanguage).value == itemName)
                       {
                         condition.itemId = item.id;
                         break;
                       }
-
                     }
                   }
 
@@ -1571,7 +1674,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                   if (itemList.Length > 0)
                   {
-                    itemNameDont = DictionariesHelper.ContainsKey(Item.Find(inventory.items, condition.itemId).name, options.currentLanguage).value;
+                    itemNameDont = DictionariesHelper.ContainsKey(Item.Find(inventory.items, condition.itemId).name,
+                      options.currentLanguage).value;
                   }
 
                   EditorGUI.BeginChangeCheck();
@@ -1582,13 +1686,11 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   {
                     foreach (Item item in inventory.items)
                     {
-
                       if (DictionariesHelper.ContainsKey(item.name, options.currentLanguage).value == itemNameDont)
                       {
                         condition.itemId = item.id;
                         break;
                       }
-
                     }
                   }
 
@@ -1603,7 +1705,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                   if (itemList.Length > 0)
                   {
-                    equippedItemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, condition.itemId).name, options.currentLanguage).value;
+                    equippedItemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, condition.itemId).name,
+                      options.currentLanguage).value;
                   }
 
                   EditorGUI.BeginChangeCheck();
@@ -1614,13 +1717,11 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   {
                     foreach (Item item in inventory.items)
                     {
-
                       if (DictionariesHelper.ContainsKey(item.name, options.currentLanguage).value == equippedItemName)
                       {
                         condition.itemId = item.id;
                         break;
                       }
-
                     }
                   }
 
@@ -1635,7 +1736,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                   if (itemList.Length > 0)
                   {
-                    discardedItemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, condition.itemId).name, options.currentLanguage).value;
+                    discardedItemName = DictionariesHelper
+                      .ContainsKey(Item.Find(inventory.items, condition.itemId).name, options.currentLanguage).value;
                   }
 
                   EditorGUI.BeginChangeCheck();
@@ -1646,13 +1748,11 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   {
                     foreach (Item item in inventory.items)
                     {
-
                       if (DictionariesHelper.ContainsKey(item.name, options.currentLanguage).value == discardedItemName)
                       {
                         condition.itemId = item.id;
                         break;
                       }
-
                     }
                   }
 
@@ -1672,7 +1772,6 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                   if (EditorGUI.EndChangeCheck())
                   {
-
                     if (selected == "True")
                     {
                       condition.globalFlag.value = true;
@@ -1682,8 +1781,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
                     {
                       condition.globalFlag.value = false;
                     }
-
                   }
+
                   break;
                 case Condition.Type.QuestStateIs:
                   // Get the quest name.
@@ -1698,28 +1797,30 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   if (EditorGUI.EndChangeCheck())
                   {
                     var questIndex = ArrayHelper.GetIndex(Quest.GetNames(quests), questName);
-                    if (questIndex > -1) condition.questAndState.questId = Quest.GetIDs(quests) [questIndex];
+                    if (questIndex > -1) condition.questAndState.questId = Quest.GetIDs(quests)[questIndex];
                   }
 
                   // Get the quest state name.
                   quest = Quest.Find(quests, condition.questAndState.questId);
                   var questState = quest != null ? quest.GetState(condition.questAndState.questStateId) : null;
-                  var questStateName = questState != null ? questState.Name : string.Empty;
+                  var questStateName = questState != null ? questState.ShortDescription : string.Empty;
 
                   // Quest state Popup with a change checker.
                   if (quest != null)
                   {
                     EditorGUI.BeginChangeCheck();
-                    var questStateNames = QuestState.GetNames(quest.questStates);
+                    var questStateNames = QuestState.GetShortDescriptions(quest.questStates);
                     questStateNames = ArrayHelper.Add(questStateNames, string.Empty);
                     questStateName = GUIHelper.Popup("Quest state: ", questStateName, questStateNames);
                     if (EditorGUI.EndChangeCheck())
                     {
-                      var questStateIndex = ArrayHelper.GetIndex(QuestState.GetNames(quest.questStates), questStateName);
+                      var questStateIndex = ArrayHelper.GetIndex(QuestState.GetShortDescriptions(quest.questStates),
+                        questStateName);
                       if (questStateIndex > -1)
-                        condition.questAndState.questStateId = QuestState.GetIDs(quest.questStates) [questStateIndex];
+                        condition.questAndState.questStateId = QuestState.GetIDs(quest.questStates)[questStateIndex];
                     }
                   }
+
                   break;
               }
 
@@ -1756,7 +1857,6 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
             foreach (Effect effect in message.effects)
             {
-
               GUIHelper.labelStyle.fontSize = 11;
               GUIHelper.labelStyle.alignment = TextAnchor.UpperLeft;
               GUILayout.Label("<i>Effect " + k + "</i>\n", GUIHelper.labelStyle);
@@ -1793,7 +1893,6 @@ namespace LavaLeak.Diplomata.Editor.Windows
                     {
                       foreach (Context ctx in tempCharacter.contexts)
                       {
-
                         if (DictionariesHelper.ContainsKey(ctx.name, options.currentLanguage).value == contextName)
                         {
                           effect.endOfContext.Set(tempCharacter.name, ctx.id);
@@ -1801,11 +1900,11 @@ namespace LavaLeak.Diplomata.Editor.Windows
                         }
                       }
                     }
+
                     foreach (Interactable tempInteractable in interactables)
                     {
                       foreach (Context ctx in tempInteractable.contexts)
                       {
-
                         if (DictionariesHelper.ContainsKey(ctx.name, options.currentLanguage).value == contextName)
                         {
                           effect.endOfContext.Set(tempInteractable.name, ctx.id);
@@ -1823,7 +1922,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                   if (effect.goTo.GetMessage(context) != null)
                   {
-                    messageContent = DictionariesHelper.ContainsKey(effect.goTo.GetMessage(context).content, options.currentLanguage).value;
+                    messageContent = DictionariesHelper
+                      .ContainsKey(effect.goTo.GetMessage(context).content, options.currentLanguage).value;
                   }
 
                   EditorGUI.BeginChangeCheck();
@@ -1836,13 +1936,12 @@ namespace LavaLeak.Diplomata.Editor.Windows
                     {
                       foreach (Message msg in col.messages)
                       {
-
-                        if (DictionariesHelper.ContainsKey(msg.content, options.currentLanguage).value == messageContent)
+                        if (DictionariesHelper.ContainsKey(msg.content, options.currentLanguage).value ==
+                            messageContent)
                         {
                           effect.goTo.uniqueId = msg.GetUniqueId();
                           break;
                         }
-
                       }
                     }
                   }
@@ -1851,24 +1950,29 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                 case Effect.Type.SetAnimatorAttribute:
 
-                  effect.animatorAttributeSetter.animator = (RuntimeAnimatorController) Resources.Load(effect.animatorAttributeSetter.animatorPath);
+                  effect.animatorAttributeSetter.animator =
+                    (RuntimeAnimatorController) Resources.Load(effect.animatorAttributeSetter.animatorPath);
 
-                  if (effect.animatorAttributeSetter.animator == null && effect.animatorAttributeSetter.animatorPath != string.Empty)
+                  if (effect.animatorAttributeSetter.animator == null &&
+                      effect.animatorAttributeSetter.animatorPath != string.Empty)
                   {
-                    Debug.LogWarning("Cannot find the file \"" + effect.animatorAttributeSetter.animatorPath + "\" in Resources folder.");
+                    Debug.LogWarning("Cannot find the file \"" + effect.animatorAttributeSetter.animatorPath +
+                                     "\" in Resources folder.");
                   }
 
                   GUILayout.Label("Animator Controller: ");
                   EditorGUI.BeginChangeCheck();
 
-                  effect.animatorAttributeSetter.animator = (RuntimeAnimatorController) EditorGUILayout.ObjectField(effect.animatorAttributeSetter.animator,
+                  effect.animatorAttributeSetter.animator = (RuntimeAnimatorController) EditorGUILayout.ObjectField(
+                    effect.animatorAttributeSetter.animator,
                     typeof(RuntimeAnimatorController), false);
 
                   if (EditorGUI.EndChangeCheck())
                   {
                     if (effect.animatorAttributeSetter.animator != null)
                     {
-                      var str = AssetDatabase.GetAssetPath(effect.animatorAttributeSetter.animator).Replace("Resources/", "¬");
+                      var str = AssetDatabase.GetAssetPath(effect.animatorAttributeSetter.animator)
+                        .Replace("Resources/", "¬");
                       var strings = str.Split('¬');
                       str = strings[1].Replace(".controller", "");
                       effect.animatorAttributeSetter.animatorPath = str;
@@ -1883,7 +1987,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   GUILayout.BeginHorizontal();
 
                   GUILayout.Label("Type: ");
-                  effect.animatorAttributeSetter.type = (AnimatorControllerParameterType) EditorGUILayout.EnumPopup(effect.animatorAttributeSetter.type);
+                  effect.animatorAttributeSetter.type =
+                    (AnimatorControllerParameterType) EditorGUILayout.EnumPopup(effect.animatorAttributeSetter.type);
 
                   EditorGUI.BeginChangeCheck();
 
@@ -1892,7 +1997,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                   if (EditorGUI.EndChangeCheck())
                   {
-                    effect.animatorAttributeSetter.setTrigger = Animator.StringToHash(effect.animatorAttributeSetter.name);
+                    effect.animatorAttributeSetter.setTrigger =
+                      Animator.StringToHash(effect.animatorAttributeSetter.name);
                   }
 
                   GUILayout.EndHorizontal();
@@ -1910,7 +2016,6 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                       if (EditorGUI.EndChangeCheck())
                       {
-
                         if (selected == "True")
                         {
                           effect.animatorAttributeSetter.setBool = true;
@@ -1920,19 +2025,20 @@ namespace LavaLeak.Diplomata.Editor.Windows
                         {
                           effect.animatorAttributeSetter.setBool = false;
                         }
-
                       }
 
                       break;
 
                     case AnimatorControllerParameterType.Float:
                       GUILayout.Label("Set float to ");
-                      effect.animatorAttributeSetter.setFloat = EditorGUILayout.FloatField(effect.animatorAttributeSetter.setFloat);
+                      effect.animatorAttributeSetter.setFloat =
+                        EditorGUILayout.FloatField(effect.animatorAttributeSetter.setFloat);
                       break;
 
                     case AnimatorControllerParameterType.Int:
                       GUILayout.Label("Set integer to ");
-                      effect.animatorAttributeSetter.setInt = EditorGUILayout.IntField(effect.animatorAttributeSetter.setInt);
+                      effect.animatorAttributeSetter.setInt =
+                        EditorGUILayout.IntField(effect.animatorAttributeSetter.setInt);
                       break;
 
                     case AnimatorControllerParameterType.Trigger:
@@ -1952,7 +2058,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                   if (itemList.Length > 0)
                   {
-                    itemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, effect.itemId).name, options.currentLanguage).value;
+                    itemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, effect.itemId).name,
+                      options.currentLanguage).value;
                   }
 
                   EditorGUI.BeginChangeCheck();
@@ -1963,13 +2070,11 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   {
                     foreach (Item item in inventory.items)
                     {
-
                       if (DictionariesHelper.ContainsKey(item.name, options.currentLanguage).value == itemName)
                       {
                         effect.itemId = item.id;
                         break;
                       }
-
                     }
                   }
 
@@ -1984,7 +2089,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                   if (itemList.Length > 0)
                   {
-                    discardItemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, effect.itemId).name, options.currentLanguage).value;
+                    discardItemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, effect.itemId).name,
+                      options.currentLanguage).value;
                   }
 
                   EditorGUI.BeginChangeCheck();
@@ -1995,13 +2101,11 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   {
                     foreach (Item item in inventory.items)
                     {
-
                       if (DictionariesHelper.ContainsKey(item.name, options.currentLanguage).value == discardItemName)
                       {
                         effect.itemId = item.id;
                         break;
                       }
-
                     }
                   }
 
@@ -2016,7 +2120,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                   if (itemList.Length > 0)
                   {
-                    equipItemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, effect.itemId).name, options.currentLanguage).value;
+                    equipItemName = DictionariesHelper.ContainsKey(Item.Find(inventory.items, effect.itemId).name,
+                      options.currentLanguage).value;
                   }
 
                   EditorGUI.BeginChangeCheck();
@@ -2027,13 +2132,11 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   {
                     foreach (Item item in inventory.items)
                     {
-
                       if (DictionariesHelper.ContainsKey(item.name, options.currentLanguage).value == equipItemName)
                       {
                         effect.itemId = item.id;
                         break;
                       }
-
                     }
                   }
 
@@ -2053,7 +2156,6 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
                   if (EditorGUI.EndChangeCheck())
                   {
-
                     if (effectSelected == "True")
                     {
                       effect.globalFlag.value = true;
@@ -2063,7 +2165,6 @@ namespace LavaLeak.Diplomata.Editor.Windows
                     {
                       effect.globalFlag.value = false;
                     }
-
                   }
 
                   break;
@@ -2084,28 +2185,30 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   if (EditorGUI.EndChangeCheck())
                   {
                     var questIndex = ArrayHelper.GetIndex(Quest.GetNames(quests), questName);
-                    if (questIndex > -1) effect.questAndState.questId = Quest.GetIDs(quests) [questIndex];
+                    if (questIndex > -1) effect.questAndState.questId = Quest.GetIDs(quests)[questIndex];
                   }
 
                   // Get the quest state name.
                   quest = Quest.Find(quests, effect.questAndState.questId);
                   var questState = quest != null ? quest.GetState(effect.questAndState.questStateId) : null;
-                  var questStateName = questState != null ? questState.Name : string.Empty;
+                  var questStateName = questState != null ? questState.ShortDescription : string.Empty;
 
                   // Quest state Popup with a change checker.
                   if (quest != null)
                   {
                     EditorGUI.BeginChangeCheck();
-                    var questStateNames = QuestState.GetNames(quest.questStates);
+                    var questStateNames = QuestState.GetShortDescriptions(quest.questStates);
                     questStateNames = ArrayHelper.Add(questStateNames, string.Empty);
                     questStateName = GUIHelper.Popup("Quest state: ", questStateName, questStateNames);
                     if (EditorGUI.EndChangeCheck())
                     {
-                      var questStateIndex = ArrayHelper.GetIndex(QuestState.GetNames(quest.questStates), questStateName);
+                      var questStateIndex = ArrayHelper.GetIndex(QuestState.GetShortDescriptions(quest.questStates),
+                        questStateName);
                       if (questStateIndex > -1)
-                        effect.questAndState.questStateId = QuestState.GetIDs(quest.questStates) [questStateIndex];
+                        effect.questAndState.questStateId = QuestState.GetIDs(quest.questStates)[questStateIndex];
                     }
                   }
+
                   break;
 
                 case Effect.Type.FinishQuest:
@@ -2121,8 +2224,9 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   if (EditorGUI.EndChangeCheck())
                   {
                     var questIndex = ArrayHelper.GetIndex(Quest.GetNames(quests), questToFinishName);
-                    if (questIndex > -1) effect.questAndState.questId = Quest.GetIDs(quests) [questIndex];
+                    if (questIndex > -1) effect.questAndState.questId = Quest.GetIDs(quests)[questIndex];
                   }
+
                   break;
 
                 case Effect.Type.StartQuest:
@@ -2138,8 +2242,9 @@ namespace LavaLeak.Diplomata.Editor.Windows
                   if (EditorGUI.EndChangeCheck())
                   {
                     var questIndex = ArrayHelper.GetIndex(Quest.GetNames(quests), questToStartName);
-                    if (questIndex > -1) effect.questAndState.questId = Quest.GetIDs(quests) [questIndex];
+                    if (questIndex > -1) effect.questAndState.questId = Quest.GetIDs(quests)[questIndex];
                   }
+
                   break;
               }
 
@@ -2160,12 +2265,67 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
             break;
         }
-
       }
 
+      #region Local Variables
+
+      GUIHelper.Separator();
+
+      EditorGUILayout.LabelField("Context local variables:");
       GUILayout.Space(GUIHelper.MARGIN);
 
-      if (GUILayout.Button("Remove Empty Columns", GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
+      if (context.LocalVariables == null)
+        context.LocalVariables = new LocalVariable[0];
+
+      foreach (var localVariable in context.LocalVariables)
+      {
+        EditorGUILayout.BeginHorizontal();
+
+        localVariable.Type = (VariableType) EditorGUILayout.EnumPopup(localVariable.Type);
+        localVariable.Name =
+          EditorGUILayout.TextField(localVariable.Name, GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL));
+
+        switch (localVariable.Type)
+        {
+          case VariableType.String:
+            DictionariesHelper.ContainsKey(localVariable.StringValue, options.currentLanguage).value =
+              EditorGUILayout.TextField(
+                DictionariesHelper.ContainsKey(localVariable.StringValue, options.currentLanguage).value,
+                GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL));
+            break;
+          case VariableType.Int:
+            localVariable.IntValue =
+              EditorGUILayout.IntField(localVariable.IntValue, GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL));
+            break;
+          case VariableType.Float:
+            localVariable.FloatValue = EditorGUILayout.FloatField(localVariable.FloatValue,
+              GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL));
+            break;
+        }
+
+        if (GUILayout.Button("X", GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL),
+          GUILayout.Width(GUIHelper.BUTTON_HEIGHT_SMALL)))
+        {
+          context.LocalVariables = ArrayHelper.Remove(context.LocalVariables, localVariable);
+          Save();
+        }
+
+        EditorGUILayout.EndHorizontal();
+        GUILayout.Space(GUIHelper.MARGIN);
+      }
+
+      if (GUILayout.Button("Add local variable", GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
+      {
+        context.AddLocalVariable(string.Format("variable{0}", context.LocalVariables.Length), VariableType.String,
+          string.Empty);
+        Save();
+      }
+
+      #endregion
+
+      GUIHelper.Separator();
+
+      if (GUILayout.Button("Remove empty columns", GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
       {
         context.columns = Column.RemoveEmptyColumns(context.columns);
         context.messageEditorState = MessageEditorState.None;
@@ -2256,7 +2416,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
           if (contextName == null)
           {
-            context.name = ArrayHelper.Add(context.name, new LanguageDictionary(options.currentLanguage, "Name [Change clicking on Edit]"));
+            context.name = ArrayHelper.Add(context.name,
+              new LanguageDictionary(options.currentLanguage, "Name [Change clicking on Edit]"));
             contextName = DictionariesHelper.ContainsKey(context.name, options.currentLanguage);
           }
 
@@ -2272,7 +2433,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
           if (contextName == null)
           {
-            context.name = ArrayHelper.Add(context.name, new LanguageDictionary(options.currentLanguage, "Name [Change clicking on Edit]"));
+            context.name = ArrayHelper.Add(context.name,
+              new LanguageDictionary(options.currentLanguage, "Name [Change clicking on Edit]"));
             contextName = DictionariesHelper.ContainsKey(context.name, options.currentLanguage);
           }
 

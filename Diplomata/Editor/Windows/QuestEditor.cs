@@ -39,7 +39,7 @@ namespace LavaLeak.Diplomata.Editor.Windows
 
       else
       {
-        window.minSize = new Vector2(GUIHelper.WINDOW_MIN_WIDTH + 240, 160);
+        window.minSize = new Vector2(GUIHelper.WINDOW_MIN_WIDTH + 240, 340);
         window.Show();
       }
     }
@@ -90,6 +90,7 @@ namespace LavaLeak.Diplomata.Editor.Windows
           GUIHelper.labelStyle.alignment = TextAnchor.MiddleLeft;
           GUILayout.Label("Quest states:", GUIHelper.labelStyle);
           GUILayout.EndHorizontal();
+          GUIHelper.Separator();
 
           // Loop of the quest states.
           foreach (var questState in quest.questStates)
@@ -97,8 +98,22 @@ namespace LavaLeak.Diplomata.Editor.Windows
             GUILayout.BeginHorizontal();
             var index = ArrayHelper.GetIndex(quest.questStates, questState);
             GUILayout.Label(string.Format("{0}.", (index + 1).ToString()), GUILayout.Width(25));
-            questState.Name = EditorGUILayout.TextField(questState.Name);
-            if (GUILayout.Button("Up", GUILayout.Width(40), GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
+
+            // Descriptions.
+            EditorGUILayout.BeginVertical();
+
+            EditorGUILayout.SelectableLabel(string.Format("Unique ID: {0}", questState.GetId()));
+
+            EditorGUILayout.LabelField("Short description:");
+            questState.ShortDescription = EditorGUILayout.TextArea(questState.ShortDescription);
+            EditorGUILayout.Space();
+
+            EditorGUILayout.LabelField("Long description:");
+            questState.LongDescription = EditorGUILayout.TextArea(questState.LongDescription);
+            EditorGUILayout.Space();
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Up", GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
             {
               if (index > 0)
               {
@@ -106,7 +121,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
                 QuestsController.Save(quests, options.jsonPrettyPrint);
               }
             }
-            if (GUILayout.Button("Down", GUILayout.Width(50), GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
+            
+            if (GUILayout.Button("Down", GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
             {
               if (index < quest.questStates.Length - 1)
               {
@@ -114,7 +130,8 @@ namespace LavaLeak.Diplomata.Editor.Windows
                 QuestsController.Save(quests, options.jsonPrettyPrint);
               }
             }
-            if (GUILayout.Button("Delete", GUILayout.Width(60), GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
+            
+            if (GUILayout.Button("Delete", GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
             {
               if (EditorUtility.DisplayDialog("Are you sure?", "Do you really want to delete?\nThis data will be lost forever.", "Yes", "No"))
               {
@@ -122,7 +139,10 @@ namespace LavaLeak.Diplomata.Editor.Windows
                 QuestsController.Save(quests, options.jsonPrettyPrint);
               }
             }
-            GUILayout.EndHorizontal();
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.EndHorizontal();
+            GUIHelper.Separator();
           }
 
           // Buttons.
@@ -130,7 +150,7 @@ namespace LavaLeak.Diplomata.Editor.Windows
           GUILayout.BeginHorizontal();
           if (GUILayout.Button("Add quest state", GUILayout.Width(Screen.width / 2), GUILayout.Height(GUIHelper.BUTTON_HEIGHT_SMALL)))
           {
-            quest.AddState("New state.");
+            quest.AddState("Short description.", "Long description.");
             Save();
           }
           GUILayout.EndHorizontal();

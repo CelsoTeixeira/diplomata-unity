@@ -13,28 +13,27 @@ namespace LavaLeak.Diplomata
   /// </summary>
   [AddComponentMenu("")]
   [Serializable]
-  [ExecuteInEditMode]
   [DisallowMultipleComponent]
   public class DiplomataTalkable : MonoBehaviour
   {
-    public List<Message> choices;
     public Talkable talkable;
     public Column currentColumn;
     public Message currentMessage;
     public bool choiceMenu;
     public bool IsTalking;
+    public List<Message> choices;
 
-    private Context currentContext;
+    protected Context currentContext;
     protected Dictionary<string, int> controlIndexes;
     private string lastUniqueId;
 
     // Events.
-    public Action<Context> OnContextEnd;
-    public Action<Message> OnMessageEnd;
-    public Action<Item> OnItemWasCaught;
-    public Action<Quest> OnQuestStart;
-    public Action<Quest> OnQuestStateChage;
-    public Action<Quest> OnQuestEnd; 
+    public event Action<Context> OnContextEnd;
+    public event Action<Message> OnMessageEnd;
+    public event Action<Item> OnItemWasCaughtLocal;
+    public event Action<Quest> OnQuestStartLocal;
+    public event Action<Quest> OnQuestStateChangeLocal;
+    public event Action<Quest> OnQuestEndLocal;
 
     /// <summary>
     /// Set if the talkable is on scene.
@@ -74,7 +73,13 @@ namespace LavaLeak.Diplomata
     /// </summary>
     public void StartTalk()
     {
-      if (talkable != null && IsTalking == false && DiplomataManager.OnATalk == false)
+      if (IsTalking || DiplomataManager.OnATalk)
+      {
+        Debug.LogWarning("This talk cannot start, because the player is already in one.");
+        return;
+      }
+
+      if (talkable != null)
       {
         IsTalking = true;
         DiplomataManager.OnATalk = true;
@@ -82,6 +87,7 @@ namespace LavaLeak.Diplomata
         controlIndexes.Add("context", 0);
         controlIndexes.Add("column", 0);
         controlIndexes.Add("message", 0);
+        controlIndexes.Add("content", -1);
 
         currentContext = null;
         currentColumn = null;
@@ -89,7 +95,9 @@ namespace LavaLeak.Diplomata
 
         choices = new List<Message>();
 
-        for (controlIndexes["context"] = 0; controlIndexes["context"] < talkable.contexts.Length; controlIndexes["context"]++)
+        for (controlIndexes["context"] = 0;
+          controlIndexes["context"] < talkable.contexts.Length;
+          controlIndexes["context"]++)
         {
           var context = Context.Find(talkable, controlIndexes["context"]);
           var lastContext = talkable.contexts.Length - 1;
@@ -133,7 +141,7 @@ namespace LavaLeak.Diplomata
     /// Internal method to go the next message.
     /// </summary>
     /// <param name="hasFate">is true if use GoTo effect.</param>
-    private void Next(bool hasFate)
+    protected void Next(bool hasFate)
     {
       if (talkable != null && currentContext != null)
       {
@@ -143,7 +151,9 @@ namespace LavaLeak.Diplomata
 
           if (currentColumn == null)
           {
-            for (controlIndexes["column"] = controlIndexes["column"]; controlIndexes["column"] < talkable.contexts.Length; controlIndexes["column"]++)
+            for (controlIndexes["column"] = controlIndexes["column"];
+              controlIndexes["column"] < talkable.contexts.Length;
+              controlIndexes["column"]++)
             {
               currentColumn = Column.Find(currentContext, controlIndexes["column"]);
 
@@ -168,7 +178,6 @@ namespace LavaLeak.Diplomata
 
               if (msg != null)
               {
-
                 if (msg.alreadySpoked && msg.disposable)
                 {
                   controlIndexes["message"] += 1;
@@ -179,10 +188,8 @@ namespace LavaLeak.Diplomata
                 {
                   if (msg.conditions.Length > 0)
                   {
-
                     foreach (Condition condition in msg.conditions)
                     {
-
                       switch (condition.type)
                       {
                         case Condition.Type.AfterOf:
@@ -212,6 +219,7 @@ namespace LavaLeak.Diplomata
                               condition.proceed = false;
                             }
                           }
+
                           break;
 
                         case Condition.Type.InfluenceGreaterThan:
@@ -223,6 +231,7 @@ namespace LavaLeak.Diplomata
                               condition.proceed = false;
                             }
                           }
+
                           break;
 
                         case Condition.Type.InfluenceLessThan:
@@ -234,13 +243,13 @@ namespace LavaLeak.Diplomata
                               condition.proceed = false;
                             }
                           }
+
                           break;
                         case Condition.Type.HasItem:
                           var item = Item.Find(DiplomataManager.Data.inventory.items, condition.itemId);
 
                           if (item != null)
                           {
-
                             if (item.have)
                             {
                               condition.proceed = true;
@@ -250,7 +259,6 @@ namespace LavaLeak.Diplomata
                             {
                               condition.proceed = false;
                             }
-
                           }
 
                           else
@@ -265,7 +273,6 @@ namespace LavaLeak.Diplomata
 
                           if (itemDont != null)
                           {
-
                             if (itemDont.have)
                             {
                               condition.proceed = false;
@@ -275,7 +282,6 @@ namespace LavaLeak.Diplomata
                             {
                               condition.proceed = true;
                             }
-
                           }
 
                           else
@@ -312,7 +318,6 @@ namespace LavaLeak.Diplomata
 
                           if (discardedItem != null)
                           {
-
                             if (discardedItem.discarded)
                             {
                               condition.proceed = true;
@@ -322,7 +327,6 @@ namespace LavaLeak.Diplomata
                             {
                               condition.proceed = false;
                             }
-
                           }
 
                           else
@@ -333,11 +337,11 @@ namespace LavaLeak.Diplomata
 
                           break;
                         case Condition.Type.GlobalFlagEqualTo:
-                          var flag = DiplomataManager.Data.globalFlags.Find(DiplomataManager.Data.globalFlags.flags, condition.globalFlag.name);
+                          var flag = DiplomataManager.Data.globalFlags.Find(DiplomataManager.Data.globalFlags.flags,
+                            condition.globalFlag.name);
 
                           if (flag != null)
                           {
-
                             if (flag.value == condition.globalFlag.value)
                             {
                               condition.proceed = true;
@@ -347,7 +351,6 @@ namespace LavaLeak.Diplomata
                             {
                               condition.proceed = false;
                             }
-
                           }
 
                           else
@@ -371,10 +374,11 @@ namespace LavaLeak.Diplomata
                             }
                             else if (targetState == null)
                             {
-                              Debug.Log(string.Format("Invalid quest state id: {0}.", condition.questAndState.questStateId));
+                              Debug.Log(string.Format("Invalid quest state id: {0}.",
+                                condition.questAndState.questStateId));
                               condition.proceed = false;
                             }
-                            else if (currentState == targetState.Name)
+                            else if (currentState == targetState.ShortDescription)
                             {
                               condition.proceed = true;
                             }
@@ -388,6 +392,7 @@ namespace LavaLeak.Diplomata
                             Debug.LogWarning("Cannot find the quest " + condition.questAndState.questId);
                             condition.proceed = false;
                           }
+
                           break;
                       }
 
@@ -436,7 +441,6 @@ namespace LavaLeak.Diplomata
 
                   else if (controlIndexes["message"] == lastMsg)
                   {
-
                     if (IsLastMessage())
                     {
                       EndTalk();
@@ -448,7 +452,6 @@ namespace LavaLeak.Diplomata
                       controlIndexes["message"] = 0;
                       Next(false);
                     }
-
                   }
 
                   else
@@ -472,7 +475,6 @@ namespace LavaLeak.Diplomata
           {
             EndTalk();
           }
-
         }
 
         else
@@ -483,7 +485,8 @@ namespace LavaLeak.Diplomata
 
       else
       {
-        Debug.LogError("Unable to found current context, this character or interactable don't have contexts or you need to use StartTalk() method to start the conversation.");
+        Debug.LogError(
+          "Unable to found current context, this character or interactable don't have contexts or you need to use StartTalk() method to start the conversation.");
         EndTalk();
       }
     }
@@ -506,15 +509,34 @@ namespace LavaLeak.Diplomata
           }
 
           // Return the text.
-          var content = DictionariesHelper.ContainsKey(currentMessage.content, DiplomataManager.Data.options.currentLanguage);
+          var content = new LanguageDictionary();
+
+          // First of all return the normal content.
+          if (controlIndexes["content"] < 0)
+            content = DictionariesHelper.ContainsKey(currentMessage.content,
+              DiplomataManager.Data.options.currentLanguage);
+
+          // If have any attached content return that.
+          else if (currentMessage.attachedContent.Length > 0 &&
+                   controlIndexes["content"] < currentMessage.attachedContent.Length)
+          {
+            var attachedContent = currentMessage.attachedContent[controlIndexes["content"]];
+            if (attachedContent != null)
+              content = DictionariesHelper.ContainsKey(attachedContent.content,
+                DiplomataManager.Data.options.currentLanguage);
+          }
+
+          // If has a error return a error text.
           if (content == null)
           {
-            var errorText = string.Format("Cannot find message content in the language: {0}", DiplomataManager.Data.options.currentLanguage);
+            var errorText = string.Format("Cannot find message content in the language: {0}",
+              DiplomataManager.Data.options.currentLanguage);
             Debug.LogError(errorText);
             EndTalk();
             return errorText;
           }
-          return content.value;
+
+          return currentContext.ReplaceVariables(content.value);
         }
         else
         {
@@ -524,6 +546,7 @@ namespace LavaLeak.Diplomata
           return errorText;
         }
       }
+
       EndTalk();
       return string.Empty;
     }
@@ -535,7 +558,8 @@ namespace LavaLeak.Diplomata
     {
       if (currentMessage != null)
       {
-        var audioClipPath = DictionariesHelper.ContainsKey(currentMessage.audioClipPath, DiplomataManager.Data.options.currentLanguage);
+        var audioClipPath = DictionariesHelper.ContainsKey(currentMessage.audioClipPath,
+          DiplomataManager.Data.options.currentLanguage);
 
         if (audioClipPath.value != string.Empty)
         {
@@ -574,11 +598,11 @@ namespace LavaLeak.Diplomata
     {
       if (currentMessage != null)
       {
-        var audioClipPath = DictionariesHelper.ContainsKey(currentMessage.audioClipPath, DiplomataManager.Data.options.currentLanguage);
+        var audioClipPath = DictionariesHelper.ContainsKey(currentMessage.audioClipPath,
+          DiplomataManager.Data.options.currentLanguage);
 
         if (audioClipPath.value != string.Empty)
         {
-
           var audioSource = GetComponent<AudioSource>();
 
           if (audioSource != null)
@@ -607,27 +631,22 @@ namespace LavaLeak.Diplomata
 
           foreach (Animator animator in animators)
           {
-
             if (animator.runtimeAnimatorController != null)
             {
-
               foreach (AnimatorAttributeSetter animatorAttribute in currentMessage.animatorAttributesSetters)
               {
-
                 if (animatorAttribute.animator == null)
                 {
-                  animatorAttribute.animator = (RuntimeAnimatorController) Resources.Load(animatorAttribute.animatorPath);
+                  animatorAttribute.animator =
+                    (RuntimeAnimatorController) Resources.Load(animatorAttribute.animatorPath);
                 }
 
                 if (animatorAttribute.animator != null)
                 {
-
                   if (animator.runtimeAnimatorController.Equals(animatorAttribute.animator))
                   {
-
                     switch (animatorAttribute.type)
                     {
-
                       case AnimatorControllerParameterType.Bool:
                         animator.SetBool(animatorAttribute.name, animatorAttribute.setBool);
                         break;
@@ -643,26 +662,18 @@ namespace LavaLeak.Diplomata
                       case AnimatorControllerParameterType.Trigger:
                         animator.SetTrigger(animatorAttribute.name);
                         break;
-
                     }
-
                   }
-
                 }
 
                 else
                 {
                   Debug.LogError("Animator controller is not setted in message.");
                 }
-
               }
-
             }
-
           }
-
         }
-
       }
     }
 
@@ -677,10 +688,8 @@ namespace LavaLeak.Diplomata
       {
         if (animator.runtimeAnimatorController != null)
         {
-
           foreach (AnimatorAttributeSetter animatorAttribute in currentMessage.animatorAttributesSetters)
           {
-
             if (animatorAttribute.animator == null)
             {
               animatorAttribute.animator = (RuntimeAnimatorController) Resources.Load(animatorAttribute.animatorPath);
@@ -688,25 +697,19 @@ namespace LavaLeak.Diplomata
 
             if (animatorAttribute.animator != null)
             {
-
               if (animator.runtimeAnimatorController.Equals(animatorAttribute.animator))
               {
                 animator.Rebind();
               }
-
             }
 
             else
             {
               Debug.LogError("Animator controller is not setted in message.");
             }
-
           }
-
         }
-
       }
-
     }
 
     /// <summary>
@@ -728,7 +731,8 @@ namespace LavaLeak.Diplomata
 
           else
           {
-            Debug.LogWarning("You have a static image in this message, but the game object don't have a Sprite Renderer.");
+            Debug.LogWarning(
+              "You have a static image in this message, but the game object don't have a Sprite Renderer.");
           }
         }
       }
@@ -773,6 +777,15 @@ namespace LavaLeak.Diplomata
     /// </summary>
     public void NextMessage()
     {
+      // If has any attached content go to that.
+      if (currentMessage.attachedContent.Length > 0 &&
+          controlIndexes["content"] < currentMessage.attachedContent.Length - 1)
+      {
+        controlIndexes["content"]++;
+        return;
+      }
+      controlIndexes["content"] = -1;
+
       var hasFate = false;
 
       if (currentMessage != null)
@@ -789,14 +802,17 @@ namespace LavaLeak.Diplomata
           switch (effect.type)
           {
             case Effect.Type.EndOfContext:
-              if (effect.endOfContext.GetContext(DiplomataManager.Data.characters, DiplomataManager.Data.interactables) != null)
+              if (effect.endOfContext.GetContext(DiplomataManager.Data.characters,
+                    DiplomataManager.Data.interactables) != null)
               {
-                effect.endOfContext.GetContext(DiplomataManager.Data.characters, DiplomataManager.Data.interactables).Finished = true;
+                effect.endOfContext.GetContext(DiplomataManager.Data.characters, DiplomataManager.Data.interactables)
+                  .Finished = true;
                 if (OnContextEnd != null)
                   OnContextEnd(currentContext);
               }
 
-              if (currentContext.talkableName == effect.endOfContext.talkableName && currentContext.id == effect.endOfContext.contextId)
+              if (currentContext.talkableName == effect.endOfContext.talkableName &&
+                  currentContext.id == effect.endOfContext.contextId)
               {
                 currentContext.Finished = true;
                 if (OnContextEnd != null)
@@ -821,28 +837,28 @@ namespace LavaLeak.Diplomata
                 {
                   if (effect.animatorAttributeSetter.animator == null)
                   {
-                    effect.animatorAttributeSetter.animator = (RuntimeAnimatorController) Resources.Load(effect.animatorAttributeSetter.animatorPath);
+                    effect.animatorAttributeSetter.animator =
+                      (RuntimeAnimatorController) Resources.Load(effect.animatorAttributeSetter.animatorPath);
                   }
 
                   if (effect.animatorAttributeSetter.animator != null)
                   {
-
                     if (animator.runtimeAnimatorController.Equals(effect.animatorAttributeSetter.animator))
                     {
-
                       switch (effect.animatorAttributeSetter.type)
                       {
-
                         case AnimatorControllerParameterType.Bool:
                           animator.SetBool(effect.animatorAttributeSetter.name, effect.animatorAttributeSetter.setBool);
                           break;
 
                         case AnimatorControllerParameterType.Float:
-                          animator.SetFloat(effect.animatorAttributeSetter.name, effect.animatorAttributeSetter.setFloat);
+                          animator.SetFloat(effect.animatorAttributeSetter.name,
+                            effect.animatorAttributeSetter.setFloat);
                           break;
 
                         case AnimatorControllerParameterType.Int:
-                          animator.SetInteger(effect.animatorAttributeSetter.name, effect.animatorAttributeSetter.setInt);
+                          animator.SetInteger(effect.animatorAttributeSetter.name,
+                            effect.animatorAttributeSetter.setInt);
                           break;
 
                         case AnimatorControllerParameterType.Trigger:
@@ -856,10 +872,9 @@ namespace LavaLeak.Diplomata
                   {
                     Debug.LogError("Animator controller is not setted in message effect.");
                   }
-
                 }
-
               }
+
               break;
 
             case Effect.Type.GetItem:
@@ -867,13 +882,17 @@ namespace LavaLeak.Diplomata
               if (getItem != null)
               {
                 getItem.have = true;
-                if (OnItemWasCaught != null)
-                  OnItemWasCaught(getItem);
+
+                DiplomataManager.EventController.SendItemWasCaught(getItem);
+
+                if (OnItemWasCaughtLocal != null)
+                  OnItemWasCaughtLocal(getItem);
               }
               else
               {
                 Debug.LogError("Cannot find the item with id " + effect.itemId + " to get.");
               }
+
               break;
 
             case Effect.Type.EquipItem:
@@ -886,6 +905,7 @@ namespace LavaLeak.Diplomata
               {
                 Debug.LogError("Cannot find the item with id " + effect.itemId + " to equip.");
               }
+
               break;
 
             case Effect.Type.DiscardItem:
@@ -898,10 +918,12 @@ namespace LavaLeak.Diplomata
               {
                 Debug.LogError("Cannot find the item with id " + effect.itemId + " to discard.");
               }
+
               break;
 
             case Effect.Type.SetGlobalFlag:
-              var flag = DiplomataManager.Data.globalFlags.Find(DiplomataManager.Data.globalFlags.flags, effect.globalFlag.name);
+              var flag = DiplomataManager.Data.globalFlags.Find(DiplomataManager.Data.globalFlags.flags,
+                effect.globalFlag.name);
               if (flag != null)
               {
                 flag.value = effect.globalFlag.value;
@@ -910,6 +932,7 @@ namespace LavaLeak.Diplomata
               {
                 Debug.LogError("Cannot find the custom flag " + effect.globalFlag.name);
               }
+
               break;
 
             case Effect.Type.EndOfDialogue:
@@ -933,42 +956,55 @@ namespace LavaLeak.Diplomata
                 else
                 {
                   quest.SetState(effect.questAndState.questStateId);
-                  if (OnQuestStateChage != null)
-                    OnQuestStateChage(quest);
+                  DiplomataManager.EventController.SendQuestStateChange(quest);
+
+                  if (OnQuestStateChangeLocal != null)
+                    OnQuestStateChangeLocal(quest);
                 }
               }
               else
               {
                 Debug.LogWarning("Cannot find the quest " + effect.questAndState.questId);
               }
+
               break;
-            
+
             case Effect.Type.FinishQuest:
               var questToFinish = Quest.Find(DiplomataManager.Data.quests, effect.questAndState.questId);
               if (questToFinish != null)
               {
                 questToFinish.Finish();
-                if (OnQuestEnd != null)
-                  OnQuestEnd(questToFinish);
+                DiplomataManager.EventController.SendQuestEnd(questToFinish);
+
+                if (OnQuestEndLocal != null)
+                  OnQuestEndLocal(questToFinish);
               }
               else
               {
                 Debug.LogWarning("Cannot find the quest " + effect.questAndState.questId);
               }
+
               break;
-            
+
             case Effect.Type.StartQuest:
               var questToStart = Quest.Find(DiplomataManager.Data.quests, effect.questAndState.questId);
               if (questToStart != null)
               {
+                if (questToStart.Initialized)
+                  break;
+
                 questToStart.Initialize();
-                if (OnQuestStart != null)
-                  OnQuestStart(questToStart);
+
+                DiplomataManager.EventController.SendQuestStart(questToStart);
+
+                if (OnQuestStartLocal != null)
+                  OnQuestStartLocal(questToStart);
               }
               else
               {
                 Debug.LogWarning("Cannot find the quest " + effect.questAndState.questId);
               }
+
               break;
           }
 
@@ -997,52 +1033,6 @@ namespace LavaLeak.Diplomata
         controlIndexes["message"] = 0;
         Next(false);
       }
-    }
-
-    /// <summary>
-    /// Get all the choices in a list.
-    /// </summary>
-    /// <returns>A list with all the choices of the current column.</returns>
-    public List<string> MessageChoices()
-    {
-      List<string> choicesText = new List<string>();
-
-      if (choices.Count > 0)
-      {
-        foreach (Message choice in choices)
-        {
-          var content = DictionariesHelper.ContainsKey(choice.content, DiplomataManager.Data.options.currentLanguage).value;
-          var choiceText = content; //(shortContent != "") ? shortContent : content;
-
-          if (!choice.alreadySpoked && choice.disposable)
-          {
-            choicesText.Add(choiceText);
-          }
-          else if (!choice.disposable)
-          {
-            choicesText.Add(choiceText);
-          }
-        }
-      }
-
-      else
-      {
-        Debug.Log("There's no choice this time.");
-
-        if (IsLastMessage())
-        {
-          EndTalk();
-        }
-
-        else
-        {
-          controlIndexes["column"] += 1;
-          controlIndexes["message"] = 0;
-          Next(false);
-        }
-      }
-
-      return choicesText;
     }
 
     /// <summary>
@@ -1112,6 +1102,7 @@ namespace LavaLeak.Diplomata
           return Message.Find(col.messages, lastUniqueId);
         }
       }
+
       return null;
     }
 
@@ -1126,7 +1117,14 @@ namespace LavaLeak.Diplomata
         return "";
       }
 
-      return DictionariesHelper.ContainsKey(GetLastMessage().content,
+      var lastMessage = GetLastMessage();
+      var content = DictionariesHelper.ContainsKey(lastMessage.content,
+        DiplomataManager.Data.options.currentLanguage).value;
+
+      if (lastMessage.attachedContent.Length == 0)
+        return content;
+
+      return DictionariesHelper.ContainsKey(lastMessage.attachedContent[lastMessage.attachedContent.Length - 1].content,
         DiplomataManager.Data.options.currentLanguage).value;
     }
   }
