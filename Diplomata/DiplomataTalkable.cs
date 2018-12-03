@@ -30,6 +30,7 @@ namespace LavaLeak.Diplomata
             (Talkable) Find.In(DiplomataManager.Data.characters.ToArray()).Where("name", talkableName).Result ??
             (Talkable) Find.In(DiplomataManager.Data.interactables.ToArray()).Where("name", talkableName).Result;
         }
+
         return _talkable;
       }
       protected set
@@ -985,7 +986,7 @@ namespace LavaLeak.Diplomata
                 else
                 {
                   quest.SetState(effect.questAndState.questStateId);
-                  DiplomataManager.EventController.SendQuestStateChange(quest);
+//                  DiplomataManager.EventController.SendQuestStateChange(quest);
 
                   if (OnQuestStateChangeLocal != null)
                     OnQuestStateChangeLocal(quest);
@@ -1024,7 +1025,7 @@ namespace LavaLeak.Diplomata
 
                 questToStart.Initialize();
 
-                DiplomataManager.EventController.SendQuestStart(questToStart);
+//                DiplomataManager.EventController.SendQuestStart(questToStart);
 
                 if (OnQuestStartLocal != null)
                   OnQuestStartLocal(questToStart);
@@ -1046,21 +1047,24 @@ namespace LavaLeak.Diplomata
         }
       }
 
-      if (hasFate)
+      if (DiplomataManager.OnATalk && IsTalking)
       {
-        Next(true);
-      }
+        if (hasFate)
+        {
+          Next(true);
+        }
 
-      else if (IsLastMessage())
-      {
-        EndTalk();
-      }
+        else if (IsLastMessage())
+        {
+          EndTalk();
+        }
 
-      else
-      {
-        controlIndexes["column"] += 1;
-        controlIndexes["message"] = 0;
-        Next(false);
+        else
+        {
+          controlIndexes["column"] += 1;
+          controlIndexes["message"] = 0;
+          Next(false);
+        }
       }
     }
 
@@ -1168,6 +1172,7 @@ namespace LavaLeak.Diplomata
         if (!context.Finished)
           return context;
       }
+
       return null;
     }
   }
