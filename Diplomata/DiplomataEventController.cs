@@ -1,5 +1,6 @@
 using System;
 using LavaLeak.Diplomata.Models;
+using UnityEngine;
 
 namespace LavaLeak.Diplomata
 { 
@@ -38,7 +39,7 @@ namespace LavaLeak.Diplomata
     /// </summary>
     /// <param name="questStart">Quest data</param>
     public void SendQuestStart(Quest questStart)
-    {
+    { 
       if (OnQuestStart != null)
         OnQuestStart(questStart);
     }

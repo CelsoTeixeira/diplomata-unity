@@ -24,17 +24,22 @@ namespace LavaLeak.Diplomata
     public DiplomataEventController EventController;
     public bool OnATalk;
 
+    public void Awake()
+    {
+      if (EventController == null)
+        EventController = new DiplomataEventController();
+    }
+    
     /// <summary>
     /// Reset all fields.
     /// </summary>
     public void Reset()
     {
       talkLogs = new TalkLog[0];
-      EventController = new DiplomataEventController();
       OnATalk = false;
       ReadJSONs();
     }
-
+    
     /// <summary>
     /// Get the JSON's data.
     /// </summary>
